@@ -1,0 +1,22 @@
+server:
+  port: 8888
+  servlet:
+    context-path: /demo
+spring:
+  redis:
+    database: 0
+    host: 172.16.255.134
+    port: 6378
+    password: 123
+  elasticsearch:
+    uris:
+      - 172.16.255.137:9200
+      - 172.16.255.138:9200
+      - 172.16.255.139:9200
+  task:
+    execution:
+      pool:
+        core-size: 5 # 核心线程数
+        max-size: 10 # 最大线程数
+        queue-capacity: 5 # 任务队列容量
+        keep-alive: 60 # 非核心线程最大空余时间，单位秒
