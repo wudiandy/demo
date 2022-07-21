@@ -1,9 +1,6 @@
 package com.example.demo.api.mq.rabbitmq;
 
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +17,8 @@ import java.util.concurrent.TimeoutException;
 @Slf4j
 public class Sender {
     public void send() throws IOException, TimeoutException {
+        String msg = "Hello RabbitMQ";
+
         // 1、创建ConnectionFactory
         ConnectionFactory connectionFactory = new ConnectionFactory();
         connectionFactory.setHost("172.16.255.140");
@@ -63,6 +62,34 @@ public class Sender {
         // 注意：要通过控制台来配置queue，exchange以及它们之间的绑定关系。
         // 上面的代码只表示可以用过Java代码实现MQ的配置。
 
+        // 开启异步确认消息投递成功
+        channel.confirmSelect();
+        channel.addConfirmListener(new ConfirmListener() {
+            @Override
+            public void handleAck(long deliveryTag, boolean multiple) {
+                log.info("push to MQ successfully");
+                // MQ成功投递应答后的业务
+            }
+
+            @Override
+            public void handleNack(long deliveryTag, boolean multiple) {
+                log.error("failed to push message to MQ");
+                // MQ投递失败后的业务逻辑
+            }
+        });
+
+        // 同步消息投递确认
+        channel.addReturnListener((replyCode, replyText, exchange, routingKey1, properties, body) -> {
+            log.info("handleReturn");
+            log.info("replyCode = {}", replyCode);
+            log.info("replyText = {}", replyText);
+            log.info("exchange = {}", exchange);
+            log.info("routingKey = {}", routingKey1);
+            log.info("body = {}", new String(body));
+        });
+        boolean mandatory = true;
+        channel.basicPublish(exchangeName, routingKey, mandatory, null, msg.getBytes());
+
         // 通过headers，我们可以自定义一些自己的属性
         Map<String, Object> headers = new HashMap<>(16);
 
@@ -76,7 +103,7 @@ public class Sender {
         int sendNum = 50;
         for (int i = 0; i < sendNum; i++) {
             log.info("正在发送消息{}...", i);
-            String msg = "mq message " + i;
+            msg = "mq message " + i;
             // 如果没有指定exchange，RabbitMQ会走默认的exchange（AMQP default）
             channel.basicPublish(exchangeName, routingKey, props, msg.getBytes());
         }

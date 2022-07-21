@@ -49,9 +49,6 @@ public class Receiver {
         // String queueName = "test_fanout_queue";
         // routingKey = "";
 
-        // 开启异步确认消息投递成功
-        channel.confirmSelect();
-
         channel.exchangeDeclare(exchangeName, exchangeType, true, false, null);
         channel.queueDeclare(queueName, false, false, false, null);
         channel.queueBind(queueName, exchangeName, routingKey);
@@ -61,10 +58,12 @@ public class Receiver {
         // 自动ACK
         channel.basicConsume(queueName, true, consumer);
 
-        while (true) {
+        long count = 10000;
+        while (count > 0) {
             QueueingConsumer.Delivery delivery = consumer.nextDelivery();
             String msg = new String(delivery.getBody());
             log.info("received message: {}", msg);
+            count--;
         }
     }
 }
