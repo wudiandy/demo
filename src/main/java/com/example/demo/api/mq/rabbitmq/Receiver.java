@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -49,9 +51,25 @@ public class Receiver {
         // String queueName = "test_fanout_queue";
         // routingKey = "";
 
+        // 开启DLX queue
+        String dlxExchangeType = "topic";
+        String dlxExchangeName = "dlx.exchange";
+        String dlxQueueName = "dlx.queue";
+        String dlxRoutingKey = "#";
+        Map<String, Object> arguments = new HashMap<>(1);
+        arguments.put("x-dead-letter-exchange", dlxExchangeName);
+
         channel.exchangeDeclare(exchangeName, exchangeType, true, false, null);
-        channel.queueDeclare(queueName, false, false, false, null);
+        channel.queueDeclare(queueName, false, false, false, arguments);
         channel.queueBind(queueName, exchangeName, routingKey);
+
+        // 流控制，QOS，最多一次推给消费端10个消息，只有ACK之后才能消费下一条消息
+        channel.basicQos(1);
+
+        // 设置DLX exchange 和 queue
+        channel.exchangeDeclare(dlxExchangeName, dlxExchangeType, true, false, null);
+        channel.queueDeclare(dlxQueueName, false, false, false, null);
+        channel.queueBind(dlxQueueName, dlxExchangeName, dlxRoutingKey);
 
         QueueingConsumer consumer = new QueueingConsumer(channel);
 

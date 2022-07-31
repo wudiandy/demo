@@ -78,7 +78,7 @@ public class Sender {
             }
         });
 
-        // 同步消息投递确认
+        // 同步消息投递确认，用于处理不可路由的消息，这个机制可以对不可路由的消息处理做一个兜底
         channel.addReturnListener((replyCode, replyText, exchange, routingKey1, properties, body) -> {
             log.info("handleReturn");
             log.info("replyCode = {}", replyCode);
@@ -98,6 +98,8 @@ public class Sender {
                 .deliveryMode(2)
                 .contentEncoding("UTF-8")
                 .headers(headers)
+                // TTL为6s
+                .expiration("6000")
                 .build();
 
         int sendNum = 50;
@@ -108,6 +110,7 @@ public class Sender {
             channel.basicPublish(exchangeName, routingKey, props, msg.getBytes());
         }
 
+        // 如果开启了Confirm监听或者return监听，则不能在发完消息后马上关闭
         channel.close();
         connection.close();
     }
