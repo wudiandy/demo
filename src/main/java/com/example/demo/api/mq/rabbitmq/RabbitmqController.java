@@ -1,5 +1,7 @@
 package com.example.demo.api.mq.rabbitmq;
 
+import com.example.demo.api.mq.rabbitmq.client.Receiver;
+import com.example.demo.api.mq.rabbitmq.client.Sender;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

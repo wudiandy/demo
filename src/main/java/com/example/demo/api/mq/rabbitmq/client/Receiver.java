@@ -1,4 +1,4 @@
-package com.example.demo.api.mq.rabbitmq;
+package com.example.demo.api.mq.rabbitmq.client;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -63,7 +63,7 @@ public class Receiver {
         channel.queueDeclare(queueName, false, false, false, arguments);
         channel.queueBind(queueName, exchangeName, routingKey);
 
-        // 流控制，QOS，最多一次推给消费端10个消息，只有ACK之后才能消费下一条消息
+        // 流控制，QOS，最多一次推给消费端1个消息，只有ACK之后才能消费下一条消息
         channel.basicQos(1);
 
         // 设置DLX exchange 和 queue

@@ -20,3 +20,36 @@ spring:
         max-size: 10 # 最大线程数
         queue-capacity: 5 # 任务队列容量
         keep-alive: 60 # 非核心线程最大空余时间，单位秒
+  rabbitmq:
+    # 自定义数据
+    test:
+      queue:
+        name: test-queue
+        durable: true
+      exchange:
+        name: test-exchange
+        durable: true
+        type: topic
+        ignoreDeclarationExceptions: true
+      key: test.*
+    # 生产端的配置
+    publisher-confirms: true  # 开启confirm消息
+    publisher-returns: true   # 开启return消息
+    template:
+      mandatory: true         # mandatory，强制性的，如果想要使用return消息，则mandatory必须设为true
+    # 消费端的配置
+    listener:
+      simple:
+        acknowledge-mode: manual  # 消费者成功消费消息以后需要手工签收，默认是auto
+        concurrency: 5            # 消费者数量，即消费消息的线程数量
+        max-concurrency: 10       # 最大消费者数量
+        prefetch: 1               # 消费者每次从队列获取的消息数量
+    # RabbitMQ基础配置
+    addresses:
+      - 172.16.255.140:5672
+      - 172.16.255.141:5672
+      - 172.16.255.142:5672
+    username: guest
+    password: guest
+    virtual-host: /
+    connection-timeout: 15000

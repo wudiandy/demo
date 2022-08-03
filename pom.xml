@@ -14,6 +14,8 @@
     <name>demo</name>
     <description>demo</description>
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
     </properties>
     <dependencies>
@@ -54,6 +56,12 @@
             <artifactId>amqp-client</artifactId>
             <!--suppress MavenPackageUpdate -->
             <version>3.6.5</version>
+        </dependency>
+        <!-- spring boot整合RabbitMQ -->
+        <!-- 在工程中，如果使用这个就不用引入amqp-client了 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
     </dependencies>
 
