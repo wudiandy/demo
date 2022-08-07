@@ -31,11 +31,13 @@ public class SpringReceiver {
             key = "${spring.rabbitmq.test.key}"))
     @RabbitHandler
     public void onMessage(Message<Object> message, Channel channel) throws Exception {
-        log.info("消费message: {}", message);
+        log.info("消费消息：{}...", message.getPayload());
+        Thread.sleep(1000);
         Long deliveryTag = (Long) message.getHeaders().get(AmqpHeaders.DELIVERY_TAG);
 
         if (deliveryTag != null) {
             // 手动签收，只签收当前deliveryTag对应的message
+            log.info("消息消费成功");
             channel.basicAck(deliveryTag, false);
         } else {
             throw new Exception("deliveryTag is null");

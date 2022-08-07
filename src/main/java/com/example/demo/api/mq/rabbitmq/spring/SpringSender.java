@@ -39,9 +39,9 @@ public class SpringSender {
         @Override
         public void confirm(CorrelationData correlationData, boolean ack, String cause) {
             if (ack) {
-                log.info("message({}) is accepted by broker successfully", correlationData.toString());
+                log.info("消息({})被broker成功接收", correlationData.getId());
             } else {
-                log.error("message({}) is not accepted by broker, cause: {}", correlationData.toString(), cause);
+                log.error("消息({})没有被broker成功接收，原因：{}", correlationData.getId(), cause);
             }
         }
     };
@@ -52,19 +52,20 @@ public class SpringSender {
          */
         @Override
         public org.springframework.amqp.core.Message postProcessMessage(org.springframework.amqp.core.Message message) throws AmqpException {
-            log.info("process after sending message...");
-            log.info("origin message: {}", message.toString());
-            String processedMessage = "processed - " + message;
+            log.info("发送消息完成后的处理...");
+            String messageBody = new String(message.getBody());
+            log.info("原始消息：{}", messageBody);
+            String processedMessage = "处理后的消息 - " + messageBody;
             return new org.springframework.amqp.core.Message(processedMessage.getBytes());
         }
     };
 
-    public void send(Object message, Map<String, Object> properties) throws Exception {
+    public void send(MqMessage mqMessage, Map<String, Object> properties) {
         MessageHeaders messageHeaders = new MessageHeaders(properties);
-        Message<Object> objectMessage = MessageBuilder.createMessage(message, messageHeaders);
+        Message<Object> objectMessage = MessageBuilder.createMessage(mqMessage.getContent(), messageHeaders);
         rabbitTemplate.setConfirmCallback(confirmCallback);
-        String exchangeName = "";
-        String routingKey = "";
+        String exchangeName = mqMessage.getExchange();
+        String routingKey = mqMessage.getRoutingKey();
         // 指定业务唯一ID
         CorrelationData correlationData = new CorrelationData(UUID.randomUUID().toString());
         rabbitTemplate.convertAndSend(exchangeName, routingKey, objectMessage, messagePostProcessor, correlationData);
