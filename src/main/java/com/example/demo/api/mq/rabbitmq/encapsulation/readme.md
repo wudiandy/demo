@@ -1,0 +1,1 @@
+这个package中是一个封装RabbitMQ的demo
