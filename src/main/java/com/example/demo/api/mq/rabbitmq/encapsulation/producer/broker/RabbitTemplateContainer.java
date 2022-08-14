@@ -2,6 +2,11 @@ package com.example.demo.api.mq.rabbitmq.encapsulation.producer.broker;
 
 import com.example.demo.api.mq.rabbitmq.encapsulation.api.Message;
 import com.example.demo.api.mq.rabbitmq.encapsulation.api.MessageType;
+import com.example.demo.api.mq.rabbitmq.encapsulation.common.convert.GenericConverter;
+import com.example.demo.api.mq.rabbitmq.encapsulation.common.convert.RabbitMessageConverter;
+import com.example.demo.api.mq.rabbitmq.encapsulation.common.serializer.Serializer;
+import com.example.demo.api.mq.rabbitmq.encapsulation.common.serializer.SerializerFactory;
+import com.example.demo.api.mq.rabbitmq.encapsulation.common.serializer.impl.JacksonSerializerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +43,8 @@ public class RabbitTemplateContainer implements RabbitTemplate.ConfirmCallback {
     @Resource
     private ConnectionFactory connectionFactory;
 
+    private final SerializerFactory serializerFactory = JacksonSerializerFactory.INSTANCE;
+
     public RabbitTemplate getTemplate(Message message) {
         Preconditions.checkNotNull(message.getTopic());
         String topic = message.getTopic();
@@ -52,7 +59,13 @@ public class RabbitTemplateContainer implements RabbitTemplate.ConfirmCallback {
         newTemplate.setExchange(topic);
         newTemplate.setRoutingKey(message.getRoutingKey());
         newTemplate.setRetryTemplate(new RetryTemplate());
-        // todo message序列化
+
+        // 添加序列化反序列化converter对象
+        Serializer serializer = serializerFactory.create();
+        GenericConverter genericConverter = new GenericConverter(serializer);
+        RabbitMessageConverter rabbitMessageConverter = new RabbitMessageConverter(genericConverter);
+        newTemplate.setMessageConverter(rabbitMessageConverter);
+
         String messageType = message.getMessageType();
         if (MessageType.RAPID.equals(messageType)) {
             newTemplate.setConfirmCallback(this);
