@@ -21,8 +21,22 @@ public class TestController {
         Thread.sleep(3000);
         String searchParam = wandaParam.getSearchParam();
         String cardNum = searchParam.substring(11, searchParam.length() - 2);
+        String data;
+        final String card1 = "360105198803134041";
+        final String card2 = "231201197303154078";
+        switch (cardNum) {
+            case card1:
+                data = "{\"code\":\"0\",\"desc\":\"成功\",\"dataInfo\":{\"pageInfo\":{\"page\":1,\"pageSize\":10,\"totals\":1},\"data\":[{\"XM\":\"余建飞\",\"GXYZT\":0,\"TNBZT\":1,\"ZJHM\":\"" + cardNum + "\"}]}}";
+                break;
+            case card2:
+                data = "{\"code\":\"0\",\"desc\":\"成功\",\"dataInfo\":{\"pageInfo\":{\"page\":1,\"pageSize\":10,\"totals\":1},\"data\":[{\"XM\":\"余建飞\",\"GXYZT\":1,\"TNBZT\":0,\"ZJHM\":\"" + cardNum + "\"}]}}";
+                break;
+            default:
+                data = "{\"code\":\"0\",\"desc\":\"成功\",\"dataInfo\":{\"pageInfo\":{\"page\":1,\"pageSize\":10,\"totals\":1},\"data\":[{\"XM\":\"余建飞\",\"GXYZT\":1,\"TNBZT\":1,\"ZJHM\":\"" + cardNum + "\"}]}}";
+                break;
+        }
         // {"code":"0","desc":"成功","dataInfo":{"pageInfo":{"page":1,"pageSize":10,"totals":1},"data":[{"XM":"余建飞","GXYZT":1,"TNBZT":1,"ZJHM":""}]}}
-        return "{\"code\":\"0\",\"desc\":\"成功\",\"dataInfo\":{\"pageInfo\":{\"page\":1,\"pageSize\":10,\"totals\":1},\"data\":[{\"XM\":\"余建飞\",\"GXYZT\":1,\"TNBZT\":1,\"ZJHM\":\"" + cardNum + "\"}]}}";
+        return data;
     }
 
     public static void main(String[] args) {

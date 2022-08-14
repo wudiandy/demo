@@ -1,5 +1,6 @@
 package com.example.demo.api.mq.rabbitmq.encapsulation.producer.autoconfig;
 
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -10,5 +11,6 @@ import org.springframework.context.annotation.Configuration;
  * @date 2022/8/9
  */
 @Configuration
+@ComponentScan({"com.example.demo.api.mq.rabbitmq.encapsulation.producer"})
 public class RabbitProducerAutoConfiguration {
 }
