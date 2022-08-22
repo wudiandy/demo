@@ -67,7 +67,7 @@ public class RabbitTemplateContainer implements RabbitTemplate.ConfirmCallback {
         newTemplate.setMessageConverter(rabbitMessageConverter);
 
         String messageType = message.getMessageType();
-        if (MessageType.RAPID.equals(messageType)) {
+        if (!MessageType.RAPID.equals(messageType)) {
             newTemplate.setConfirmCallback(this);
         }
         rabbitTemplateMap.put(topic, newTemplate);
