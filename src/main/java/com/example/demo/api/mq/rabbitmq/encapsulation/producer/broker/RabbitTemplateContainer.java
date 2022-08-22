@@ -7,6 +7,7 @@ import com.example.demo.api.mq.rabbitmq.encapsulation.common.convert.RabbitMessa
 import com.example.demo.api.mq.rabbitmq.encapsulation.common.serializer.Serializer;
 import com.example.demo.api.mq.rabbitmq.encapsulation.common.serializer.SerializerFactory;
 import com.example.demo.api.mq.rabbitmq.encapsulation.common.serializer.impl.JacksonSerializerFactory;
+import com.example.demo.api.mq.rabbitmq.encapsulation.producer.mapper.service.MessageStoreService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +34,6 @@ import java.util.Objects;
 @Component
 public class RabbitTemplateContainer implements RabbitTemplate.ConfirmCallback {
 
-    // TODO 这里为什么要用ConcurrentMap呢？
-
     private final Map<String, RabbitTemplate> rabbitTemplateMap = Maps.newConcurrentMap();
 
     /**
@@ -42,6 +41,9 @@ public class RabbitTemplateContainer implements RabbitTemplate.ConfirmCallback {
      */
     @Resource
     private ConnectionFactory connectionFactory;
+
+    @Resource
+    private MessageStoreService messageStoreService;
 
     private final SerializerFactory serializerFactory = JacksonSerializerFactory.INSTANCE;
 
@@ -80,6 +82,8 @@ public class RabbitTemplateContainer implements RabbitTemplate.ConfirmCallback {
         long sendTime = Long.parseLong(correlationData.getId().split("#")[1]);
 
         if (ack) {
+            // 当broker返回ACK成功时，就更新日志表对应的消息发送状态为SEND_OK
+            messageStoreService.success(messageId);
             log.info("send message is OK, confirm messageId: {}, sendTime: {}", messageId, sendTime);
         } else {
             log.error("send message is fail, confirm messageId: {}, sendTime: {}", messageId, sendTime);
